@@ -83,7 +83,7 @@ function displayPhotos() {
             for (var i = 0; i < len; i++) {
                 var photo = results.rows.item(i);
                 var img = new Image();
-                img.src = photo.uri; // Assuming 'uri' contains a valid path for the image
+                img.src = "data:image/jpeg;base64," + photo.uri;
                 img.className = "photo-thumbnail"; // CSS class for styling
                 img.setAttribute("alt", "Photo with ID " + photo.id);
 
