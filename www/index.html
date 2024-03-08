@@ -67,6 +67,7 @@
             takephoto: function () {
                 let opts = {
                     quality: 80,
+                    saveToPhotoAlbum: true,
                     destinationType: Camera.DestinationType.FILE_URI,
                     sourceType: Camera.PictureSourceType.CAMERA,
                     mediaType: Camera.MediaType.PICTURE,
@@ -80,7 +81,7 @@
             },
             ftw: function (imgURI) {
                 document.getElementById('msg').textContent = imgURI;
-                document.getElementById('photo').src = imgURI;
+                document.getElementById('photo').src = "data:image/jpeg;base64," + imgURI;
 
             },
             wtf: function (msg) {
