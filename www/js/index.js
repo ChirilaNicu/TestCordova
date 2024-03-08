@@ -21,9 +21,52 @@
 // See https://cordova.apache.org/docs/en/latest/cordova/events/events.html#deviceready
 document.addEventListener('deviceready', onDeviceReady, false);
 
-function onDeviceReady() {
-    // Cordova is now initialized. Have fun!
+var db;
 
-    console.log('Running cordova-' + cordova.platformId + '@' + cordova.version);
-    document.getElementById('deviceready').classList.add('ready');
+function onDeviceReady() {
+    db = window.sqlitePlugin.openDatabase({
+        name: 'photoLocator.db',
+        location: 'default'
+    });
+
+    db.transaction(function (tx) {
+        tx.executeSql('CREATE TABLE IF NOT EXISTS Photos (id INTEGER PRIMARY KEY AUTOINCREMENT, uri TEXT, latitude REAL, longitude REAL)');
+    }, function (error) {
+        alert('Transaction ERROR: ' + error.message);
+    }, function () {
+        console.log('Database and table created');
+    });
+}
+
+function savePhotoData(uri, latitude, longitude) {
+    db.transaction(function (tx) {
+        tx.executeSql('INSERT INTO Photos (uri, latitude, longitude) VALUES (?, ?, ?)', [uri, latitude, longitude]);
+    }, function (error) {
+        alert('Transaction ERROR: ' + error.message);
+    }, function () {
+        console.log('Photo data saved successfully');
+    });
+}
+
+function takePhoto() {
+    navigator.camera.getPicture(onPhotoSuccess, onPhotoFail, {
+        quality: 75,
+        destinationType: Camera.DestinationType.FILE_URI
+    });
+}
+
+function onPhotoSuccess(imageURI) {
+    // Get GPS coordinates
+    navigator.geolocation.getCurrentPosition(function (position) {
+        // Save photo URI and GPS coordinates to the local database
+        savePhotoData(imageURI, position.coords.latitude, position.coords.longitude);
+    }, onGeoError, { enableHighAccuracy: true });
+}
+
+function onPhotoFail(message) {
+    alert('Failed to get picture: ' + message);
+}
+
+function onGeoError(error) {
+    alert('Failed to get GPS location: ' + error.message);
 }
